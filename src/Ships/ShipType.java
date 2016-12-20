@@ -12,5 +12,6 @@ package Ships;
 public enum ShipType {    
 
     BattleShip,
+    Minesweeper,
     Mine
 }

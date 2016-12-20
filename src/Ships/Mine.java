@@ -45,7 +45,7 @@ public class Mine implements Ship {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName();
+        return name;
     }
     
     

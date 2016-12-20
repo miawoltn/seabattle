@@ -12,11 +12,17 @@ package Ships;
 public class ShipFactory {
     
     public static Ship Build(ShipType shipType, String name) {
-         if(shipType == ShipType.BattleShip)
-             return new BattleShip(name);
-         
-         else if(shipType == ShipType.Mine)
-             return new Mine();
+         if(null != shipType)
+             switch (shipType) {
+            case BattleShip:
+                return new BattleShip(name);
+            case Minesweeper:
+                return new Minesweeper(name);
+            case Mine:
+                return new Mine();
+            default:
+                break;
+        }
          
          return new BattleShip(name);
     }

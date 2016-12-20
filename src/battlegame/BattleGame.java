@@ -49,8 +49,8 @@ public class BattleGame {
          playerOne = new Player(name,Teritory.West);
          for(ShipType shipType : ShipType.values()) {
            Print("Enter "+shipType.name()+" name: ");
-           name = PromptWarShipSelection();
-           ship = ShipFactory.Build(shipType, name);
+           name = PromptWarShipSelection().substring(0,1);
+           ship = ShipFactory.Build(shipType, name+playerOne.getPlayerid());
            Print("Enter Battle ship position - formart -> [?-?]: ");
            name = PromptWarShipSelection();
            row = Integer.parseInt(name.substring(0,1));
@@ -66,8 +66,8 @@ public class BattleGame {
          playerTwo = new Player(name,Teritory.East);
          for(ShipType shipType : ShipType.values()) {
            Print("Enter "+shipType.name()+" name: ");
-           name = PromptWarShipSelection();
-           ship = ShipFactory.Build(shipType, name);
+           name = PromptWarShipSelection().substring(0,1);
+           ship = ShipFactory.Build(shipType, name+playerTwo.getPlayerid());
            Print("Enter "+shipType.name()+" position - formart -> [?-?]: ");
            name = PromptWarShipSelection();
            Loc = name.split("-");
@@ -105,6 +105,7 @@ public class BattleGame {
                 ship = controller.getShip(new Point(row,col));
             } catch (NotShipException ex) {
                 Println(ex.getMessage());
+                continue;
             }
              Print("Enter new position [row-col]: ");
              name = EasyIn.getString(" ");             
@@ -120,6 +121,7 @@ public class BattleGame {
              showBoard(controller);
              controller.setTurn();
              Println(controller.getOutCome());
+             Println(Integer.toString(controller.enemyShips.size()));
              
          }while (p1Hits != 3 || p2Hits != 3);       
     }

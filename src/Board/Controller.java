@@ -22,6 +22,7 @@ public class Controller {
     private final Board board;
     final Player player1, player2;
     final List<Ship> warShips;
+    public List<Ship> enemyShips;
     private Ship wShip;
     private int turn;
     final int playerOneHits;
@@ -111,11 +112,12 @@ public class Controller {
          if(!validMove(ship,newLocation)) throw new ShipMaxSpeedExceededException("Ship speed not sufficient for the move");
          
        resolveLandingConflict(ship,newLocation);
+       resolveWarshipsConflict(ship);
        // ResolveConflict(ship,newLocation);
   }
     
      private void ResolveConflict(Ship ship, Point newLocation) {        
-      Object current = board.getCell(newLocation.getX(), newLocation.getY());
+     /* Object current = board.getCell(newLocation.getX(), newLocation.getY());
       if(null != current) switch (current.toString()) {
             case "~":
                 //ship.setLocation(newLocation);
@@ -141,7 +143,7 @@ public class Controller {
                     outCome = OutCome.collision;      
                     
                
-        }
+        }*/
     }
   
   private void resolveLandingConflict(Ship ship , Point newLocation) {
@@ -157,7 +159,7 @@ public class Controller {
               if(ship instanceof Minesweeper) {
                   positionWarship(ship, newLocation);
                   outCome = OutCome.mineNeutralised;
-                  canAttack = false;
+                  canAttack = true;
               }
               else {             
                   removeWarShip(ship);
@@ -176,12 +178,28 @@ public class Controller {
   }
   
   private void resolveWarshipsConflict(Ship ship) {
+     
       if(canAttack) {
-          
+         enemyShips = this.getSurroundingShips(ship); // enemyShips = filterEnemyWarship(enemyShips);
       }
   }
         
- 
+  private List<Ship> filterEnemyWarship(List<Ship> Ships) {      
+      List<Ship> _ship = new ArrayList<>();
+       if(getTurn() == 0) {
+            Ships.stream().forEach((eShip) -> {
+              if(player1.WarShips.contains(eShip))
+                      _ship.remove(eShip);
+             });                 
+        }
+        else {
+           Ships.stream().forEach((eShip) -> {
+             if(player2.WarShips.contains(eShip))
+                      _ship.remove(eShip);
+          });      
+        }           
+          return _ship;
+  }
    
    private boolean validMove(Ship s, Point newLocation) {
        int row = Math.abs(newLocation.getX() - s.getLocation().getX());
@@ -239,52 +257,67 @@ public class Controller {
         }
     }
     
-    private Point[] getSurroundingShips(Ship currentShip){
-        Point p = currentShip.getLocation();
-        int row = p.getX();
-        int col = p.getY();
-        Point west = getLeftShip(row,col);
-        Point northwest = getUpperLeftDiagonalShip(row,col);
-        Point north = getInfrontShip(row, col);
-        Point northeast = getUpperRightDiagonalShip(row,col);
-        Point east = getRightShip(row,col);
-        Point southeast = getLowerRightDiagonalShip(row,col);
-        Point south = getBehindShip(row,col);
-        Point southwest = getLowerLeftDiagonalShip(row,col);
-       return new Point[]{
+    private List<Ship> getSurroundingShips(Ship currentShip){
+        List<Ship> ships = new ArrayList<>();
+        Point points[] = getSurroundingPoints(currentShip.getLocation());
+        for(Point point : points) {
+            try {
+                if(withinBoard(point)) {
+                     wShip = getShip(point);
+                    ships.add(wShip);
+                }               
+            } catch (NotShipException ex) {
+               
+            }
+        }                
+        return ships;
+    }
+    
+    private Point[] getSurroundingPoints(Point point){
+        int row = point.getX();
+        int col = point.getY();
+        Point west = getWestPoint(row,col);
+        Point northwest = getNorthWestPoint(row,col);
+        Point north = getNorthPoint(row, col);
+        Point northeast = getNortheastPoint(row,col);
+        Point east = getEastPoint(row,col);
+        Point southeast = getSoutheastPoint(row,col);
+        Point south = getSouthPoint(row,col);
+        Point southwest = getSouthwestPoint(row,col);
+       return new Point[] {
            west,northwest,north,northeast,east,southeast,south,southwest
        };
     }
     
-    private Point getLeftShip(int row, int col){
+    private Point getWestPoint(int row, int col){
         return new Point(row,--col);
     }    
             
-    private Point getUpperLeftDiagonalShip(int row, int col){
+    private Point getNorthWestPoint(int row, int col){
         return new Point(--row,--col);
     }
     
-    private Point getInfrontShip(int row, int col){
+    private Point getNorthPoint(int row, int col){
         return new Point(--row,col);
     }
     
-     private Point getUpperRightDiagonalShip(int row, int col){
+     private Point getNortheastPoint(int row, int col){
         return new Point(++row,--col);
     }
 
-    private Point getRightShip(int row, int col){
+    private Point getEastPoint(int row, int col){
         return new Point(row,++col);
     }
     
-    private Point getLowerRightDiagonalShip(int row, int col){
+    private Point getSoutheastPoint(int row, int col){
         return new Point(++row,++col);
     }
     
-    private Point getBehindShip(int row, int col){
+    private Point getSouthPoint(int row, int col){
         return new Point(++row,col);
     }
     
-    private Point getLowerLeftDiagonalShip(int row, int col){
+    private Point getSouthwestPoint(int row, int col){
         return new Point(++row,--col);
     }  
     

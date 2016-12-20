@@ -46,5 +46,11 @@ public class Minesweeper implements Ship {
     public void setLocation(Point p) {
         this.location = p;
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+    
     
 }
