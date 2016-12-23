@@ -42,6 +42,7 @@ public class Controller {
         this.player1 = players[0];
         this.player2 = players[1];
         warShips = new ArrayList<>();
+        enemyShips = new ArrayList<>();
         playerOneHits = playerTwoHits = 0;
         playerOneAttempts = playerTwoAttempts = turn = 0;
         wShip = null;
@@ -79,19 +80,26 @@ public class Controller {
     public Ship getShip(Point loc) throws NotShipException {
         Object s = this.board.getCell(loc.getX(), loc.getY());
         if(warShips.contains(s)) {
-           switch(getTurn()) {
-               case 0 :
-                   if(!player1.WarShips.contains(s)) throw new NotShipException("Not a ship"); 
-                   break;
-               case 1: 
-                   if(!player2.WarShips.contains(s)) throw new NotShipException("Not a ship"); 
-                   break;                
+              return (Ship)s;
            }
-            return (Ship)s;
-        }         
+            //return (Ship)s;         
 
         throw new NotShipException("Not a ship");
        
+    }
+    
+    public boolean isInFleet(Ship ship) throws NotShipException { //determines if the selected ship is the currents player's
+           switch(this.getTurn()) {
+               case 0:
+                   if(player1.WarShips.contains(ship)) //throw new NotShipException("Not a ship"); 
+                       return true;
+                   break;
+               case 1: 
+                   if(player2.WarShips.contains(ship)) //throw new NotShipException("Not a ship"); 
+                       return true;    
+                   break;
+           }        
+       return false;
     }
      
     /**
@@ -109,14 +117,14 @@ public class Controller {
      */
     public void moveShip(Ship ship, Point newLocation) throws ShipMaxSpeedExceededException, OverBoardException{          
          if(!withinBoard(newLocation)) throw new OverBoardException("Move is over board range");
-         if(!validMove(ship,newLocation)) throw new ShipMaxSpeedExceededException("Ship speed not sufficient for the move");
-         
-       resolveLandingConflict(ship,newLocation);
-       resolveWarshipsConflict(ship);
-       // ResolveConflict(ship,newLocation);
+         if(!validMove(ship,newLocation)) throw new ShipMaxSpeedExceededException("Ship speed not sufficient for the move");         
+       
+         resolveConflict(ship,newLocation);
   }
     
-     private void ResolveConflict(Ship ship, Point newLocation) {        
+     private void resolveConflict(Ship ship, Point newLocation) {      
+         resolveLandingConflict(ship, newLocation);
+         resolveWarshipsConflict(ship);
      /* Object current = board.getCell(newLocation.getX(), newLocation.getY());
       if(null != current) switch (current.toString()) {
             case "~":
@@ -178,9 +186,56 @@ public class Controller {
   }
   
   private void resolveWarshipsConflict(Ship ship) {
-     
       if(canAttack) {
          enemyShips = this.getSurroundingShips(ship); // enemyShips = filterEnemyWarship(enemyShips);
+         
+        /*  switch(ship.getClass().getSimpleName()) {
+                 case "Destroyer":
+                     for(Ship s : enemyShips) {
+                         switch(s.getClass().getSimpleName()) {
+                             case "Submarine":
+                             case "Minesweeper":
+                             case "Destroyer":
+                                 this.removeWarShip(s);
+                                 break;
+                         }
+                     }
+                     break;
+                 case "BattleShip":
+                     for(Ship s : enemyShips) {
+                         switch(s.getClass().getSimpleName()) {
+                             case "Destroyer":
+                             case "Minesweeper":
+                             case "BattleShip":
+                                 this.removeWarShip(s);
+                                 break;
+                         }
+                     }
+                     break;
+                case "Submarine":
+                    for(Ship s : enemyShips) {
+                         switch(s.getClass().getSimpleName()) {
+                             case "BattleShip":
+                             case "Minesweeper":
+                             case "Submarine":
+                                 this.removeWarShip(s);
+                                 break;
+                         }
+                     }
+                     break;
+                 case "Minesweeper":
+                      for(Ship s : enemyShips) {
+                         switch(s.getClass().getSimpleName()) {
+                             case "Minesweeper":
+                                 this.removeWarShip(s);
+                                 break;
+                         }
+                     }
+                     break;                
+                 default:
+             }
+         //enemyShips.stream().forEach((s) -> this.removeWarShip(s));
+         //enemyShips.clear();*/
       }
   }
         
@@ -264,7 +319,8 @@ public class Controller {
             try {
                 if(withinBoard(point)) {
                      wShip = getShip(point);
-                    ships.add(wShip);
+                    //if(!this.isInFleet(wShip))
+                         ships.add(getShip(point));
                 }               
             } catch (NotShipException ex) {
                

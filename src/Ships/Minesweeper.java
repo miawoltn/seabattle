@@ -18,7 +18,7 @@ public class Minesweeper implements Ship {
     String name;
     
     public Minesweeper(String name) {
-        
+        this.name = name;
     }
 
     @Override

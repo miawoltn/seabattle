@@ -13,7 +13,7 @@ import Board.Point;
  */
 public class BattleShip implements Ship{
 
-    final static int speed = 6;
+    final static int speed = 4;
     Point location;
     String name;
     

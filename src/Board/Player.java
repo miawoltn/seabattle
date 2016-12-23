@@ -22,10 +22,10 @@ public class Player {
     Teritory teritory;
 
     public Player(String playerName,Teritory teritory) {        
-        Random r = new Random(System.currentTimeMillis());
-        r.nextInt();
+        Random r = new Random(100);
+       //a r.nextInt();
 
-        PlayerId = playerName.substring(0,1)+((Math.random()%9)+1);        
+        PlayerId = playerName.substring(0,1)+(( r.nextInt()%9)+1);        
         PlayerName = playerName;
         WarShips = new ArrayList<>();
         this.teritory = teritory;

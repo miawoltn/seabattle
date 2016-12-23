@@ -14,7 +14,7 @@ import Board.Point;
 public class Mine implements Ship {
     
     private Point location;
-    private String name;
+    private String name = "mine";
     
     @Override
     public String getName() {

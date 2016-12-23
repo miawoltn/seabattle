@@ -103,6 +103,7 @@ public class BattleGame {
              col = Integer.parseInt(Loc[1]);
             try {
                 ship = controller.getShip(new Point(row,col));
+                if(!controller.isInFleet(ship)) continue;
             } catch (NotShipException ex) {
                 Println(ex.getMessage());
                 continue;
