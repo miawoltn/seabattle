@@ -24,5 +24,11 @@ public class Point {
     public int getY(){
         return y;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s,%s", (x+1),(y+1));// "Point{" + "x=" + x + ", y=" + y + '}';
+    }
+    
     
 }

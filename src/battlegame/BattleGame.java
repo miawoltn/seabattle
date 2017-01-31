@@ -38,8 +38,7 @@ public class BattleGame {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        // TODO code application logic here
+    public static void main(String[] args) { 
         // Set the players
         
                
@@ -51,7 +50,7 @@ public class BattleGame {
            Print("Enter "+shipType.name()+" name: ");
            name = PromptWarShipSelection().substring(0,1);
            ship = ShipFactory.Build(shipType, name+playerOne.getPlayerid());
-           Print("Enter Battle ship position - formart -> [?-?]: ");
+           Print("Enter "+shipType.name()+" position - formart -> [?-?]: ");
            name = PromptWarShipSelection();
            row = Integer.parseInt(name.substring(0,1));
            col = Integer.parseInt(name.substring(2));
@@ -123,6 +122,8 @@ public class BattleGame {
              controller.setTurn();
              Println(controller.getOutCome());
              Println(Integer.toString(controller.enemyShips.size()));
+             controller.enemyShips.stream().forEach((s) -> {Println(s.getName()+" "+s.getLocation().toString());});
+             controller.enemyShips.clear();
              
          }while (p1Hits != 3 || p2Hits != 3);       
     }

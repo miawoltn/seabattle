@@ -79,7 +79,7 @@ public class Controller {
      */
     public Ship getShip(Point loc) throws NotShipException {
         Object s = this.board.getCell(loc.getX(), loc.getY());
-        if(warShips.contains(s)) {
+        if(this.warShips.contains(s)) {
               return (Ship)s;
            }
             //return (Ship)s;         
@@ -186,6 +186,7 @@ public class Controller {
   }
   
   private void resolveWarshipsConflict(Ship ship) {
+      enemyShips.clear();
       if(canAttack) {
          enemyShips = this.getSurroundingShips(ship); // enemyShips = filterEnemyWarship(enemyShips);
          
@@ -256,18 +257,30 @@ public class Controller {
           return _ship;
   }
    
+  //checking if the ship's speed can reach the target position
    private boolean validMove(Ship s, Point newLocation) {
        int row = Math.abs(newLocation.getX() - s.getLocation().getX());
        int col = Math.abs(newLocation.getY() - s.getLocation().getY());
        return s.getSpeed() >= (row+col);
     }
    
+   /**
+    * 
+    * making sure the specified location is within the playing ground
+    * 
+    */
    private boolean withinBoard(Point location) {
        int row = location.getX();
        int col = location.getY();
         return (board.columns > col && col >= 0) && (0 <= row && row < board.rows);
     }
    
+   
+   /**
+    * 
+    *removes the warship from the list of ships on the board and replacing its position with the default object
+    *
+    */
    private void removeWarShip(Ship warShip){
         Point loc = warShip.getLocation();
         warShips.remove(warShip);
@@ -303,6 +316,15 @@ public class Controller {
         board.setCell(row, col, obj);  
     }
     
+    /**
+     *
+     * Checks if the specified object on the board  is a ship    
+     * 
+     * 
+     * @param object
+     * 
+     * @return 
+     */
     private boolean isShip(Object object) {
         try {
             Ship ship = (Ship)object;
@@ -320,18 +342,19 @@ public class Controller {
                 if(withinBoard(point)) {
                      wShip = getShip(point);
                     //if(!this.isInFleet(wShip))
-                         ships.add(getShip(point));
+                         ships.add(wShip/*getShip(point)*/);
+                         System.out.println("Debug: "+wShip.getName());
                 }               
             } catch (NotShipException ex) {
                
             }
-        }                
+        }                 
         return ships;
     }
     
     private Point[] getSurroundingPoints(Point point){
-        int row = point.getX();
-        int col = point.getY();
+        int row = point.getX() + 1;
+        int col = point.getY() + 1;
         Point west = getWestPoint(row,col);
         Point northwest = getNorthWestPoint(row,col);
         Point north = getNorthPoint(row, col);
@@ -358,7 +381,7 @@ public class Controller {
     }
     
      private Point getNortheastPoint(int row, int col){
-        return new Point(++row,--col);
+        return new Point(--row,++col);
     }
 
     private Point getEastPoint(int row, int col){
@@ -423,9 +446,4 @@ public class Controller {
     public String getOutCome() {
         return outCome;
     }
-
-    
-   
-   
-    
 }
