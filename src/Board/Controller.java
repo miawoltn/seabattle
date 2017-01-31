@@ -342,8 +342,7 @@ public class Controller {
                 if(withinBoard(point)) {
                      wShip = getShip(point);
                     //if(!this.isInFleet(wShip))
-                         ships.add(wShip/*getShip(point)*/);
-                         System.out.println("Debug: "+wShip.getName());
+                         ships.add(wShip/*getShip(point)*/); 
                 }               
             } catch (NotShipException ex) {
                
