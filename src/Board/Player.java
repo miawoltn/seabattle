@@ -19,16 +19,16 @@ public class Player {
     String PlayerId;
     String PlayerName;
     List<Ship> WarShips;
-    Teritory teritory;
+    Territory territory;
 
-    public Player(String playerName,Teritory teritory) {        
+    public Player(String playerName,Territory teritory) {        
         Random r = new Random(100);
        //a r.nextInt();
 
         PlayerId = playerName.substring(0,1)+(( r.nextInt()%9)+1);        
         PlayerName = playerName;
         WarShips = new ArrayList<>();
-        this.teritory = teritory;
+        this.territory = teritory;
     }
 
     public String getPlayerid() {
@@ -51,6 +51,10 @@ public class Player {
     
     public List<Ship> getWarShips(){
         return WarShips;
+    }
+    
+    public Territory getTerritory() {
+        return territory;
     }
 
 }

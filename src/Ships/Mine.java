@@ -14,11 +14,15 @@ import Board.Point;
 public class Mine implements Ship {
     
     private Point location;
-    private String name = "mine";
+    private String name;
+    
+    public Mine(String name) {
+        this.name = name;
+    }
     
     @Override
     public String getName() {
-        return "*";
+        return name;
     }
 
     @Override
@@ -28,7 +32,7 @@ public class Mine implements Ship {
 
     @Override
     public void setMove(int horizontal, int vertical) throws TooManyShipMovesException {
-         
+         // mines are immovable
     }
 
     @Override
@@ -44,8 +48,13 @@ public class Mine implements Ship {
     }
 
     @Override
+    public ShipType getType() {
+        return ShipType.Mine;
+    }
+    
+    @Override
     public String toString() {
-        return name;
+        return "*";
     }
     
     

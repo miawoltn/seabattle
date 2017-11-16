@@ -6,19 +6,25 @@
 package Ships;
 
 import Board.Point;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *
  * @author Muhammad Amin
  */
-public class BattleShip implements Ship{
+public class BattleShip extends ShipDecorator{
 
-    final static int speed = 4;
+    int speed;
     Point location;
     String name;
+    ShipType type;
     
-    public BattleShip(String name) {
+    public BattleShip(String name, ShipType type) {
        this.name = name;
+       this.type = type;
+       speed = type.getValue();
     }
     
     @Override
@@ -28,9 +34,8 @@ public class BattleShip implements Ship{
 
     @Override
     public int getSpeed() {
-        return speed;
-    }
-    
+        return speed; // type.getValue();
+    }    
 
     @Override
     public void setMove(int horizontal, int vertical) throws TooManyShipMovesException {
@@ -42,12 +47,29 @@ public class BattleShip implements Ship{
     public void setLocation(Point location){
        this.location = location;
     }
+
+    @Override
+    public List<ShipType> getDestroyableShips() {
+        return Arrays.asList(ShipType.Minesweeper);
+    }
+
+    @Override
+    public List<ShipType> getPredatorShips() {
+        return new ArrayList<>(); // Arrays.asList(ShipType.BattleShip);
+    }
+
+    @Override
+    public ShipType getType() {
+        return type;
+    }
+    
+    
     
     @Override
     public Point getLocation(){
         return location;
     }
-
+    
     @Override
     public String toString() {
         return name;

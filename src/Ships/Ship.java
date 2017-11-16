@@ -17,5 +17,5 @@ public interface Ship {
     public void setMove(int horizontal, int vertical) throws TooManyShipMovesException; 
     public Point getLocation();
     public void setLocation(Point p);
-    
+    public ShipType getType();
 }

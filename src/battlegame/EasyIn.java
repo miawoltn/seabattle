@@ -17,14 +17,10 @@ import java.util.regex.Pattern;
 	public abstract class EasyIn
 	{
 
-	  public static String getString(String pattern)
-	  {
+	  public static String getString()
+	  { 
 	     Scanner input = new Scanner(System.in);
-             String s = input.next();
-             Pattern p = Pattern.compile(pattern);
-             Matcher m = p.matcher(s);
-             if(m.matches())
-		   return s;
+             String s = input.nextLine(); 
              return s;
 	   }
 

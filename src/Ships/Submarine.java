@@ -6,38 +6,47 @@
 package Ships;
 
 import Board.Point;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
  *
- * @author Muhammad Amin
+ * @author MuhammadAmin
  */
-public class Minesweeper extends ShipDecorator {
+public class Submarine extends ShipDecorator{
     
-    final static int speed = 3;
-    Point location;
-    String name;
+    private final static int SPEED = 2;
+    private Point location;
+    private final String name;
     
-    public Minesweeper(String name) {
+    public Submarine(String name) {
         this.name = name;
     }
 
     @Override
+    public List<ShipType> getDestroyableShips() {
+        return Arrays.asList(ShipType.BattleShip,ShipType.Minesweeper);
+    }
+
+    @Override
+    public List<ShipType> getPredatorShips() {
+        return Arrays.asList(ShipType.Destroyer);
+    }
+
+    @Override
     public String getName() {
-       return name;
+        return name;
     }
 
     @Override
     public int getSpeed() {
-        return speed; 
+        return SPEED;
     }
 
     @Override
     public void setMove(int horizontal, int vertical) throws TooManyShipMovesException {
         int totalMoves = horizontal + vertical;
-       if(totalMoves > speed) throw new TooManyShipMovesException("Number of moves exceeded ship speed.");
+       if(totalMoves > SPEED) throw new TooManyShipMovesException("Number of moves exceeded ship speed.");
     }
 
     @Override
@@ -51,24 +60,8 @@ public class Minesweeper extends ShipDecorator {
     }
 
     @Override
-    public String toString() {
-        return name;
-    }
-
-    @Override
     public ShipType getType() {
-      return ShipType.Minesweeper;
+        return ShipType.Submarine;
     }
-
-    @Override
-    public List<ShipType> getDestroyableShips() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<ShipType> getPredatorShips() {
-       return Arrays.asList(ShipType.BattleShip);
-    }
-    
     
 }

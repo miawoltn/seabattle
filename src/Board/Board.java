@@ -12,6 +12,7 @@ package Board;
 public class Board {
     final int rows, columns;
     Object[][] WarGround;
+    final static Object EMPTY_GROUND = "~";
     public Board(int rows, int columns){
         this.rows = rows;
         this.columns = columns;
@@ -37,13 +38,12 @@ public class Board {
         } catch(Exception e) {
             
         }
-        
     }
     
     private void InitializeWarGround(){
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
-                WarGround[i][j] = ("~");
+                WarGround[i][j] = "~"; //EMPTY_GROUND;
             }
         }
     }

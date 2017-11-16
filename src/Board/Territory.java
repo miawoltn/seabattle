@@ -3,16 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Ships;
- 
-import java.util.List;
+package Board;
 
 /**
  *
  * @author Muhammad Amin
  */
-public abstract class ShipDecorator implements Ship { 
-    
-    public abstract List<ShipType> getDestroyableShips(); 
-    public abstract List<ShipType> getPredatorShips();
+public enum Territory {
+    West,
+    East
 }

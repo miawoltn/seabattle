@@ -10,8 +10,9 @@ import Board.Controller;
 import Board.ControllerNotSetException;
 import Board.OverBoardException;
 import Board.Player;
+import Board.PlayerNotSetException;
 import Board.Point;
-import Board.Teritory;
+import Board.Territory;
 import Ships.BattleShip;
 import Ships.NotShipException;
 import Ships.Ship;
@@ -35,68 +36,53 @@ public class BattleGame {
     static Player playerOne, playerTwo;
     BattleShip battleShip;
     static Ship ship;
+    static Controller controller;
     /**
-     * @param args the command line arguments
+     * @param args the command line arguments 
      */
-    public static void main(String[] args) { 
-        // Set the players
+    public static void main(String[] args){ 
         
-               
-        Println("=============== Plyer 1 ===============");
-         Print("Enter your name: ");
-         name = PromptWarShipSelection(); 
-         playerOne = new Player(name,Teritory.West);
-         for(ShipType shipType : ShipType.values()) {
-           Print("Enter "+shipType.name()+" name: ");
-           name = PromptWarShipSelection().substring(0,1);
-           ship = ShipFactory.Build(shipType, name+playerOne.getPlayerid());
-           Print("Enter "+shipType.name()+" position - formart -> [?-?]: ");
-           name = PromptWarShipSelection();
-           row = Integer.parseInt(name.substring(0,1));
-           col = Integer.parseInt(name.substring(2));
-           ship.setLocation(new Point(row,col));
-           playerOne.AddWarShip(ship);
-         }
-         
-         
-         Println("=============== Plyer 2 ===============");
-         Print("Enter your name: ");
-         name = PromptWarShipSelection(); 
-         playerTwo = new Player(name,Teritory.East);
-         for(ShipType shipType : ShipType.values()) {
-           Print("Enter "+shipType.name()+" name: ");
-           name = PromptWarShipSelection().substring(0,1);
-           ship = ShipFactory.Build(shipType, name+playerTwo.getPlayerid());
-           Print("Enter "+shipType.name()+" position - formart -> [?-?]: ");
-           name = PromptWarShipSelection();
-           Loc = name.split("-");
-           row = Integer.parseInt(Loc[0]);
-           col = Integer.parseInt(Loc[1]);
-           ship.setLocation(new Point(row,col));
-           playerTwo.AddWarShip(ship);
-         }
-         
          //create the empty board
          createBoard();
-         Controller controller = new Controller(battleField,new Player[]{playerOne, playerTwo});
+         controller = new Controller(battleField);
+        
+        
+        // Set the players               
+        Println("=============== Player 1 ===============");
+         Print("Enter your name: ");
+         name = getInput(); 
+         playerOne = new Player(name,Territory.West);
+         setupPlayer(playerOne);
+         
+         
+         
+         Println("=============== Player 2 ===============");
+         Print("Enter your name: ");
+         name = getInput(); 
+         playerTwo = new Player(name,Territory.East);
+         setupPlayer(playerTwo);
+         
+        controller.setPlayers(new Player[]{playerOne,playerTwo});
         
         //start game        
-         showBoard(controller);
+         //showBoard(controller, true);
         try {
             Controller.startGame(controller);
-        } catch (ControllerNotSetException ex) {
+        } catch (ControllerNotSetException | PlayerNotSetException | OverBoardException ex) {
             Println(ex.getMessage());
+            return;
         }
           showBoard(controller);
           int p1Hits = 0; 
           int p2Hits = 0;
          do {
+             showBoard(controller,false); 
              p1Hits = controller.getPlayerOneHits();
              p2Hits = controller.getPlayerTwoHits();
              int turn = controller.getTurn();
              Println("========== Player "+(turn+1)+"'s turn =========");
              Print("Enter ship's position to move [row-col]: ");
-             name = EasyIn.getString("");           
+             name = getInput(); //EasyIn.getString();           
              Loc = name.split("-");
              row = Integer.parseInt(Loc[0]);
              col = Integer.parseInt(Loc[1]);
@@ -108,7 +94,7 @@ public class BattleGame {
                 continue;
             }
              Print("Enter new position [row-col]: ");
-             name = EasyIn.getString(" ");             
+             name = getInput(); //EasyIn.getString().trim();             
              Loc = name.split("-");
              row = Integer.parseInt(Loc[0]);
              col = Integer.parseInt(Loc[1]);
@@ -128,12 +114,39 @@ public class BattleGame {
          }while (p1Hits != 3 || p2Hits != 3);       
     }
     
+    public static void setupPlayer(Player player) { 
+        for(ShipType shipType : ShipType.values()) {
+           Print("Enter "+shipType.name()+" name: ");
+           name = getInput().substring(0,2);
+           ship = ShipFactory.Build(shipType, name+player.getPlayerid());
+           Print("Enter "+shipType.name()+" position - formart -> [?-?]: ");
+           name = newPosition();
+           while(name.indexOf('-') == -1){
+             name = newPosition();
+           }
+             row = Integer.parseInt(name.substring(0,1));
+             if(player.getTerritory() == Territory.East)
+                 col = (Integer.parseInt(name.substring(2)) + 5);
+             else
+                col = Integer.parseInt(name.substring(2));
+           
+             ship.setLocation(new Point(row,col));
+             player.AddWarShip(ship);
+        }
+    }
+    
     public static void createBoard() {
         battleField = new Board(6,11);
     }
     
-   public static void showBoard(Controller controller){
-       Object[][] field = controller.getBoard();
+   public static void showBoard(Controller controller) {
+       showBoard(controller, true);
+   }
+   public static void showBoard(Controller controller, boolean all){
+       //for(int i = 0; i < 500; i++)
+       //    Println("\n");
+       
+       Object[][] field = all ? controller.getBoard():controller.getCurrentPlayerBoard();
         Println(" ");
         for (int x = 0; x < field[0].length; x++) 
                 System.out.print("   "+(x+1));
@@ -147,13 +160,13 @@ public class BattleGame {
         }  
    }
 
-   public static String PromptWarShipSelection(){
-      String input = EasyIn.getString("\\w");
-      return input;
+   public static String getInput(){
+      String input = EasyIn.getString();
+      return input.trim();
    }
    
-   public String newPosition(){
-      String input = EasyIn.getString("^\\d-\\d$");
+   public static String newPosition(){
+      String input = EasyIn.getString();
       return input;
    }
      

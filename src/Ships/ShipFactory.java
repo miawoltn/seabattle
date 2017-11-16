@@ -15,15 +15,15 @@ public class ShipFactory {
          if(null != shipType)
              switch (shipType) {
             case BattleShip:
-                return new BattleShip(name);
+                return new BattleShip(name,shipType);
             case Minesweeper:
                 return new Minesweeper(name);
             case Mine:
-                return new Mine();
+                return new Mine(name);
             default:
                 break;
         }
          
-         return new BattleShip(name);
+         return new BattleShip(name, shipType);
     }
 }

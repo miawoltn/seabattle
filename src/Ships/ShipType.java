@@ -11,7 +11,18 @@ package Ships;
  */
 public enum ShipType {    
 
-    BattleShip,
-    Minesweeper,
-    Mine
+    BattleShip(4),
+    Destroyer(6),
+    Minesweeper(3),
+    Mine(0),
+    Submarine(2);
+    
+    private final int value;
+    ShipType(int value) {
+        this.value = value;
+    }
+    
+    public int getValue() {
+        return value;
+    }
 }
