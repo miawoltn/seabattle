@@ -11,9 +11,12 @@ import Ships.ShipMaxSpeedExceededException;
 import Ships.NotShipException;
 import Ships.Ship;
 import Ships.ShipDecorator;
+import Ships.ShipInBattle;
 import Ships.ShipType;
 import java.util.ArrayList; 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -22,43 +25,48 @@ import java.util.List;
 public class Controller {   
     
     private final Board board;
-    static Player player1, player2;
-    List<Ship> warShips;
+    private static Player player1, player2;
+    private final List<ShipInBattle> warShips;
     public List<Ship> enemyShips;
+    private final Map<String,List<Ship>> inactivePlayersShips;
     private Ship wShip;
     private int turn;
-    int playerOneHits;
-    int playerTwoHits;
-    int playerOneAttempts;
-    int playerTwoAttempts;
+    private int playerOneHits;
+    private int playerTwoHits;
+    private int playerOneAttempts;
+    private int playerTwoAttempts;
     private String outCome;
     private boolean canAttack;
+    private Player winner;
         
     /**
-     *
-     * @param board
-     * @param players
+     * Class constructor that accepts the board for the game.
+     * 
+     * @param board 
      */
     public Controller(Board board){
         this.board = board; 
         warShips = new ArrayList<>();
         enemyShips = new ArrayList<>();
-        playerOneHits = playerTwoHits = 0;
-        playerOneAttempts = playerTwoAttempts = turn = 0;
-        wShip = null;
+        inactivePlayersShips = new HashMap<>();
+        //playerOneHits = playerTwoHits = 0;
+        //playerOneAttempts = playerTwoAttempts = turn = 0;
+        //wShip = null;
     } 
     
     /**
-     * Sets the 
+     * Sets the players for the game; 
      * 
-     * @param players
+     * @param players list of @see{Player} playing the game.
      */
     public void setPlayers(Player [] players){ 
-        this.player1 = players[0];
-        this.player2 = players[1]; 
+        player1 = players[0];
+        player2 = players[1]; 
+        inactivePlayersShips.put(player1.getPlayerid(), new ArrayList<>());
+        inactivePlayersShips.put(player2.getPlayerid(), new ArrayList<>());
         playerOneHits = playerTwoHits = 0;
         playerOneAttempts = playerTwoAttempts = turn = 0;
-        wShip = null;
+        //wShip = null;
     } 
     
     /**
@@ -77,14 +85,40 @@ public class Controller {
          controller.begin();
     }
     
-     private void begin() throws OverBoardException {   
-       warShips.addAll(player1.WarShips);
-       warShips.addAll(player2.WarShips);
-       for(Ship ship : warShips) {
+     private void begin() throws OverBoardException {  
+       decoratePlayersShips();
+       
+       //warShips.addAll(player1.getWarShips());
+       //warShips.addAll(player2.getWarShips());
+       for(ShipInBattle ship : warShips) {
            if(!withinBoard(ship.getLocation())) throw new OverBoardException("Move is over board range");
              Position(ship.getLocation(),ship);    
         }
     } 
+       
+     /**
+      * 
+      */
+    private void decoratePlayersShips() {
+        List<ShipInBattle> decoratedShips = new ArrayList<>();
+        
+        // Player1 ships
+        for(Ship s : player1.getWarShips()) {
+            decoratedShips.add(new ShipInBattle(s,player1.getPlayerid()));
+        }
+        
+        // Player2 ships
+        for(Ship s : player2.getWarShips()) {
+            decoratedShips.add(new ShipInBattle(s,player2.getPlayerid()));
+        }
+        
+        // add decorated ships of both players to controller list.
+        addDecoratedShipsToControllerShipList(decoratedShips);
+    }
+    
+    private void addDecoratedShipsToControllerShipList(List<ShipInBattle> decoratedShips) {
+       warShips.addAll(decoratedShips);
+    }
     
     /**
      *
@@ -94,19 +128,16 @@ public class Controller {
      */
     public Ship getShip(Point loc) throws NotShipException {
         Object s = this.board.getCell(loc.getX(), loc.getY());
-        if(this.warShips.contains(s)) {
+        if(warShips.contains(s)) {
               return (Ship)s;
            }
             //return (Ship)s;         
-
         throw new NotShipException("Not a ship");
-       
     }
     
     
     /**
-     *
-     * Checks whether the specified ship is in the current players fleet
+     * Checks whether the specified ship is in the current players fleet.
      * 
      * @param ship
      * @return true if the ship is in current player's fleet otherwise returns false
@@ -114,13 +145,11 @@ public class Controller {
     public boolean isInFleet(Ship ship) { //determines if the selected ship is the currents player's
            switch(this.getTurn()) {
                case 0:
-                   if(player1.WarShips.contains(ship)) //throw new NotShipException("Not a ship"); 
-                       return true;
-                   break;
+                   if(player1.getWarShips().contains(ship)) //throw new NotShipException("Not a ship"); 
+                       return true; 
                case 1: 
-                   if(player2.WarShips.contains(ship)) //throw new NotShipException("Not a ship"); 
-                       return true;    
-                   break;
+                   if(player2.getWarShips().contains(ship)) //throw new NotShipException("Not a ship"); 
+                       return true;
            }        
        return false;
     }
@@ -146,36 +175,9 @@ public class Controller {
   }
     
      private void resolveConflict(Ship ship, Point newLocation) {      
-         resolveLandingConflict(ship, newLocation);
+        resolveLandingConflict(ship, newLocation);
         // if(getTurn() % 2 == 0)
-            resolveWarshipsConflict(ship);
-     /* Object current = board.getCell(newLocation.getX(), newLocation.getY());
-      if(null != current) switch (current.toString()) {
-            case "~":
-                //ship.setLocation(newLocation);
-                positionWarship(ship, newLocation);
-                outCome = OutCome.safeLanding;
-                break;
-            case "Mine":
-                if (!"Minesweeper".equals(ship.getClass().getSimpleName())) {
-                   // warShips.remove(ship);
-                    //Position(newLocation, "~");
-                    removeWarShip(ship);
-                    removeWarShip((Ship)current);
-                    outCome = OutCome.mineLanding;
-                }else {
-                    //ship.setLocation(newLocation);
-                    positionWarship(ship, newLocation);
-                    outCome = OutCome.mineNeutralised;
-                }   break;
-            default:
-                    wShip = (Ship)current;
-                    removeWarShip(wShip); //warShips.remove(wShip);
-                    removeWarShip(ship); //warShips.remove(ship);
-                    outCome = OutCome.collision;      
-                    
-               
-        }*/
+        resolveWarshipsConflict(ship);
     }
   
      
@@ -186,7 +188,8 @@ public class Controller {
      * mine, it neutralizes the mine and doesn't get destroyed. 
      * If the ships lands and doesn't get destroyed then it can engage enemy ships in a battle.
      * 
-     * @param ship, newLocation
+     * @param ship
+     * @param newLocation
      * 
      */
   private void resolveLandingConflict(Ship ship , Point newLocation) {
@@ -201,6 +204,7 @@ public class Controller {
           if(wShip instanceof Mine) {
               if(ship instanceof Minesweeper) {
                   positionWarship(ship, newLocation);
+                  removeWarShip(wShip);
                   outCome = OutCome.mineNeutralised;
                   canAttack = true;
               }
@@ -223,77 +227,33 @@ public class Controller {
   private void resolveWarshipsConflict(Ship ship) {
       enemyShips.clear();
       if(canAttack) {
-         enemyShips = this.getSurroundingEnemyShips(ship); // enemyShips = filterEnemyWarship(enemyShips);
+         enemyShips = getSurroundingEnemyShips(ship); // enemyShips = filterEnemyWarship(enemyShips);
          List<ShipType> destroyableShips = ((ShipDecorator)ship).getDestroyableShips();
          enemyShips.stream().filter((eShip) -> (destroyableShips.contains(eShip.getType()))).forEach((eShip) -> {
              this.removeWarShip(eShip);
+             outCome = String.format(OutCome.shipDestroyedNeighbor, ship.getName(),eShip.getName());
           });
          for(Ship s : enemyShips) {
-             if(((ShipDecorator)ship).getPredatorShips().contains(s.getType()))
-                 this.removeWarShip(ship); break;
+             if(((ShipDecorator)ship).getPredatorShips().contains(s.getType())) {
+                 this.removeWarShip(ship); 
+                 outCome = String.format(OutCome.shipDestroyedByNeighbor, ship.getName(),s.getName());
+                 break;
+             }
          }
-         
-         /*  switch(ship.getClass().getSimpleName()) {
-          case "Destroyer":
-          for(Ship s : enemyShips) {
-          switch(s.getClass().getSimpleName()) {
-          case "Submarine":
-          case "Minesweeper":
-          case "Destroyer":
-          this.removeWarShip(s);
-          break;
-          }
-          }
-          break;
-          case "BattleShip":
-          for(Ship s : enemyShips) {
-          switch(s.getClass().getSimpleName()) {
-          case "Destroyer":
-          case "Minesweeper":
-          case "BattleShip":
-          this.removeWarShip(s);
-          break;
-          }
-          }
-          break;
-          case "Submarine":
-          for(Ship s : enemyShips) {
-          switch(s.getClass().getSimpleName()) {
-          case "BattleShip":
-          case "Minesweeper":
-          case "Submarine":
-          this.removeWarShip(s);
-          break;
-          }
-          }
-          break;
-          case "Minesweeper":
-          for(Ship s : enemyShips) {
-          switch(s.getClass().getSimpleName()) {
-          case "Minesweeper":
-          this.removeWarShip(s);
-          break;
-          }
-          }
-          break;
-          default:
-          }
-          //enemyShips.stream().forEach((s) -> this.removeWarShip(s));
-          //enemyShips.clear();*/
-      }
+       }
   }
         
   private List<Ship> filterEnemyWarship(List<Ship> Ships) {      
       List<Ship> _ship = new ArrayList<>();
        if(getTurn() == 0) {
             Ships.stream().forEach((eShip) -> {
-              if(player1.WarShips.contains(eShip))
+              if(player1.getWarShips().contains(eShip))
                       _ship.remove(eShip);
              });                 
         }
         else {
            Ships.stream().forEach((eShip) -> {
-             if(player2.WarShips.contains(eShip))
+             if(player2.getWarShips().contains(eShip))
                       _ship.remove(eShip);
           });      
         }           
@@ -308,9 +268,8 @@ public class Controller {
     }
    
    /**
-    * 
-    * making sure the specified location is within the playing ground
-    * 
+    * Checks if move is valid (within the board);
+    * @return true if within board.
     */
    private boolean withinBoard(Point location) {
        int row = location.getX();
@@ -320,13 +279,15 @@ public class Controller {
    
    
    /**
-    * 
-    *removes the warship from the list of ships on the board and replacing its position with the default object
+    * Removes the warship from the list of ships on the board and 
+    * replace its position with the default object
     *
     */
    private void removeWarShip(Ship warShip){
         Point loc = warShip.getLocation();
-        warShips.remove(warShip);
+        ShipInBattle active = (ShipInBattle) warShip;
+        warShips.remove(active);
+        inactivePlayersShips.get(active.getOwner()).add(active);
         Position(loc,Board.EMPTY_GROUND/*"~"*/); 
     }
     
@@ -364,9 +325,9 @@ public class Controller {
      * Checks if the specified object on the board  is a ship    
      * 
      * 
-     * @param object
+     * @param object An item from the board cell.
      * 
-     * @return 
+     * @return true if object is of type @code{Ship}
      */
     private boolean isShip(Object object) { 
         return object instanceof Ship;
@@ -451,12 +412,16 @@ public class Controller {
         return board.WarGround;     
    }       
     
+    /**
+     * 
+     * @return 
+     */
     public Object[][] getCurrentPlayerBoard() {
         Object[][] currentPlayerBoard = new Object[board.rows][board.columns]; // board.WarGround;
         for(int i = 0; i < board.rows; i++)
             for(int j = 0; j < board.columns; j++)
                 currentPlayerBoard[i][j] = Board.EMPTY_GROUND;
-        List<Ship> currentPlayerShips = getTurn() == 0 ? player1.WarShips:player2.WarShips;
+        List<Ship> currentPlayerShips = getTurn() == 0 ? player1.getWarShips():player2.getWarShips();
         //int col = getTurn() == 0 ? 0:board.columns/2;
         currentPlayerShips.stream().forEach((ship) -> {
            if(active(ship))
@@ -514,5 +479,33 @@ public class Controller {
     private boolean active(Ship ship) {
        Object current = board.getCell(ship.getLocation().getX(), ship.getLocation().getY());
        return current instanceof Ship;
+    }
+    
+    public boolean gameOver() {
+        int player1ShipCount = player1.getWarShips().size();
+        int player2ShipCount = player2.getWarShips().size();
+        
+        int player1InactiveShipCount = player1.getWarShips().size();
+        int player2InactiveShipCount = player2.getWarShips().size(); 
+        
+        // draw
+        if(player1ShipCount == player1InactiveShipCount && player2ShipCount == player2InactiveShipCount) {
+            winner = null;
+            return true;
+        }
+        
+        // player 1 wins
+         if(player2ShipCount == player2InactiveShipCount) {
+           winner = player1;
+           return true;
+        }
+        
+        // player2 wins
+        if(player1ShipCount == player1InactiveShipCount) {
+           winner = player2;
+           return true;
+        }
+        
+        return false;
     }
 }

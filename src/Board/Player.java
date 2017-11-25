@@ -11,15 +11,15 @@ import java.util.List;
 import java.util.Random;
 
 /**
- *
+ * Class for representing a player for the game.
  * @author Muhammad Amin
  */
 public class Player {
 
-    String PlayerId;
-    String PlayerName;
-    List<Ship> WarShips;
-    Territory territory;
+    private final String PlayerId;
+    private final String PlayerName;
+    private final List<Ship> WarShips;
+    private final Territory territory;
 
     public Player(String playerName,Territory teritory) {        
         Random r = new Random(100);

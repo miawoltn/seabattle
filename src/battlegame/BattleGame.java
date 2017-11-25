@@ -111,7 +111,9 @@ public class BattleGame {
              controller.enemyShips.stream().forEach((s) -> {Println(s.getName()+" "+s.getLocation().toString());});
              controller.enemyShips.clear();
              
-         }while (p1Hits != 3 || p2Hits != 3);       
+         }while (!controller.gameOver());   
+         
+         // TODO: display the winner
     }
     
     public static void setupPlayer(Player player) { 

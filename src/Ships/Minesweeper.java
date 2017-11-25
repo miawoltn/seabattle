@@ -9,19 +9,27 @@ import Board.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  *
  * @author Muhammad Amin
  */
-public class Minesweeper extends ShipDecorator {
+public class Minesweeper implements Ship {
     
-    final static int speed = 3;
-    Point location;
-    String name;
+    private final int speed;
+    private Point location;
+    private final String name;
+    private final ShipType type;
     
     public Minesweeper(String name) {
+        this(ShipType.Minesweeper, name);
+    }
+    
+    private Minesweeper(ShipType type, String name) {
+        this.type = type;
         this.name = name;
+        this.speed = type.getValue();
     }
 
     @Override
@@ -60,7 +68,7 @@ public class Minesweeper extends ShipDecorator {
       return ShipType.Minesweeper;
     }
 
-    @Override
+    /*@Override
     public List<ShipType> getDestroyableShips() {
         return new ArrayList<>();
     }
@@ -68,7 +76,26 @@ public class Minesweeper extends ShipDecorator {
     @Override
     public List<ShipType> getPredatorShips() {
        return Arrays.asList(ShipType.BattleShip);
+    }*/
+    
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null || !(obj instanceof Ship)) return false;
+        
+        if(obj == this) return true;
+        
+        Ship ship = (Ship) obj;
+        return ship.getName().equals(this.getName())
+                && ship.getSpeed() == this.getSpeed()
+                && ship.getType() == this.getType();
     }
-    
-    
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 83 * hash + this.speed;
+        hash = 83 * hash + Objects.hashCode(this.name);
+        hash = 83 * hash + Objects.hashCode(this.type);
+        return hash;
+    }
 }

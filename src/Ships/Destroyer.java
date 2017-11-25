@@ -5,25 +5,31 @@
  */
 package Ships;
 
-import Board.Point;  
-import java.util.Arrays;
-import java.util.List;
+import Board.Point;   
+import java.util.Objects;
 
 /**
  *
  * @author MuhammadAmin
  */
-public class Destroyer extends ShipDecorator{
+public class Destroyer implements Ship{
 
-    private final static int SPEED = 6;
+    private final int speed;
     private Point location;
     private final String name;
+    private final ShipType type;
     
     public Destroyer(String name) {
-        this.name = name;
+        this(ShipType.Destroyer,name);
     }
     
-    @Override
+    private Destroyer(ShipType type, String name) {
+        this.type = type;
+        this.name = name;
+        this.speed = type.getValue();
+    }
+    
+    /*@Override
     public List<ShipType> getDestroyableShips() {
         return Arrays.asList(ShipType.Minesweeper);
     }
@@ -31,7 +37,7 @@ public class Destroyer extends ShipDecorator{
     @Override
     public List<ShipType> getPredatorShips() {
         return Arrays.asList(ShipType.BattleShip);
-    }
+    }*/
 
     @Override
     public String getName() {
@@ -40,13 +46,13 @@ public class Destroyer extends ShipDecorator{
 
     @Override
     public int getSpeed() {
-        return SPEED;
+        return speed;
     }
 
     @Override
     public void setMove(int horizontal, int vertical) throws TooManyShipMovesException {
         int totalMoves = horizontal + vertical;
-       if(totalMoves > SPEED) throw new TooManyShipMovesException("Number of moves exceeded ship speed.");
+       if(totalMoves > speed) throw new TooManyShipMovesException("Number of moves exceeded ship speed.");
     }
 
     @Override
@@ -61,7 +67,29 @@ public class Destroyer extends ShipDecorator{
 
     @Override
     public ShipType getType() {
-        return ShipType.Destroyer;
+        return type;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null || !(obj instanceof Ship)) return false;
+        
+        if(obj == this) return true;
+        
+        Ship ship = (Ship) obj;
+        return ship.getName().equals(this.getName())
+                && ship.getSpeed() == this.getSpeed()
+                && ship.getType() == this.getType();
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 79 * hash + this.speed;
+        hash = 79 * hash + Objects.hashCode(this.name);
+        hash = 79 * hash + Objects.hashCode(this.type);
+        return hash;
+    }
+    
     
 }

@@ -6,6 +6,7 @@
 package Ships;
 
 import Board.Point;
+import java.util.Objects;
 
 /**
  *
@@ -13,11 +14,19 @@ import Board.Point;
  */
 public class Mine implements Ship {
     
+    private final String name;
+    private final ShipType type;
     private Point location;
-    private String name;
+    private final int speed;
     
     public Mine(String name) {
+        this(ShipType.Mine, name);
+    }
+    
+    private Mine(ShipType type, String name) {
+        this.type = type;
         this.name = name;
+        this.speed = type.getValue();
     }
     
     @Override
@@ -57,5 +66,24 @@ public class Mine implements Ship {
         return "*";
     }
     
-    
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null || !(obj instanceof Ship)) return false;
+        
+        if(obj == this) return true;
+        
+        Ship ship = (Ship) obj;
+        return ship.getName().equals(this.getName())
+                && ship.getSpeed() == this.getSpeed()
+                && ship.getType() == this.getType();
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 79 * hash + Objects.hashCode(this.name);
+        hash = 79 * hash + Objects.hashCode(this.type);
+        hash = 79 * hash + this.speed;
+        return hash;
+    }
 }

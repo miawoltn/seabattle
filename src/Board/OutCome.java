@@ -10,8 +10,10 @@ package Board;
  * @author Muhammad Amin
  */
 public class OutCome {
-    static String safeLanding = "Ship landed successfully.";
-    static String collision = "Ship collision occured.";
-    static String mineLanding = "Ship destroyed by mine.";
-    static String mineNeutralised = "Mine neutralised by ship";
+    static final String safeLanding = "Ship landed successfully.";
+    static final String collision = "Ship collision occured.";
+    static final String mineLanding = "Ship destroyed by mine.";
+    static final String mineNeutralised = "Mine neutralised by ship";
+    static final String shipDestroyedNeighbor = "%s destroyed by %s";
+    static final String shipDestroyedByNeighbor = "%s is destroyed by %s";
 }

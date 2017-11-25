@@ -9,19 +9,27 @@ import Board.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
- *
+ * This class 
+ * 
+ * 
  * @author Muhammad Amin
+ * @version 11/24/2017
  */
-public class BattleShip extends ShipDecorator{
+public class BattleShip implements Ship {
 
     int speed;
     Point location;
     String name;
     ShipType type;
     
-    public BattleShip(String name, ShipType type) {
+    public BattleShip(String name) {
+        this(ShipType.BattleShip, name);
+    }
+    
+    private BattleShip( ShipType type, String name) {
        this.name = name;
        this.type = type;
        speed = type.getValue();
@@ -48,15 +56,15 @@ public class BattleShip extends ShipDecorator{
        this.location = location;
     }
 
-    @Override
+    /*@Override
     public List<ShipType> getDestroyableShips() {
         return Arrays.asList(ShipType.Minesweeper);
     }
 
     @Override
     public List<ShipType> getPredatorShips() {
-        return new ArrayList<>(); // Arrays.asList(ShipType.BattleShip);
-    }
+        return Arrays.asList(ShipType.Submarine);
+    }*/
 
     @Override
     public ShipType getType() {
@@ -74,7 +82,26 @@ public class BattleShip extends ShipDecorator{
     public String toString() {
         return name;
     }
-    
-    
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null || !(obj instanceof Ship)) return false;
         
+        if(obj == this) return true;
+        
+        Ship ship = (Ship) obj;
+        return ship.getName().equals(this.getName())
+                && ship.getSpeed() == this.getSpeed()
+                && ship.getType() == this.getType();
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + this.speed;
+        hash = 97 * hash + Objects.hashCode(this.name);
+        hash = 97 * hash + Objects.hashCode(this.type);
+        return hash;
+    }
+           
 }
